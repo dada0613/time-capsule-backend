@@ -3,11 +3,13 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
-app.use(cors({
+const corsOptions = {
   origin: 'https://cdpn.io',
   methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type']
-}));
+  allowedHeaders: ['Content-Type'],
+  credentials: true
+};
+
 
 app.options('*', cors());
 app.use(express.json());
