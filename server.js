@@ -3,21 +3,20 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
-
-
 app.use(cors({
   origin: 'https://cdpn.io',
-  methods: ['GET', 'POST', 'DELETE'],
+  methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type']
-}));app.use(express.json());
+}));
 
-// Connect to MongoDB
+app.options('*', cors());
+app.use(express.json());
+
 mongoose.connect(process.env.MONGO_URI || "mongodb://atlas-sql-680401721a6f6b782dd97e29-aaied.a.query.mongodb.net/timecapsule?ssl=true&authSource=admin", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
-// Define Message schema + model
 const messageSchema = new mongoose.Schema({
   title: String,
   mood: String,
@@ -31,9 +30,7 @@ const messageSchema = new mongoose.Schema({
 
 const Message = mongoose.model("Message", messageSchema);
 
-// Routes
 
-// GET all messages
 app.get("/messages", async (req, res) => {
   try {
     const messages = await Message.find().sort({ createdAt: -1 });
@@ -43,7 +40,6 @@ app.get("/messages", async (req, res) => {
   }
 });
 
-// POST new message
 app.post("/messages", async (req, res) => {
   try {
     const { title, mood, content, openAt } = req.body;
@@ -62,11 +58,9 @@ app.post("/messages", async (req, res) => {
   }
 });
 
-// Default route (for sanity check)
 app.get("/", (req, res) => {
   res.send("📬 Time Capsule backend is live!");
 });
-// DELETE a message by ID
 app.delete("/messages/:id", async (req, res) => {
   try {
     const deleted = await Message.findByIdAndDelete(req.params.id);
