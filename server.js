@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI || "your-mongodb-uri-here", {
+mongoose.connect(process.env.MONGO_URI || "mongodb://atlas-sql-680401721a6f6b782dd97e29-aaied.a.query.mongodb.net/timecapsule?ssl=true&authSource=admin", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
