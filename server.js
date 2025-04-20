@@ -63,6 +63,19 @@ app.post("/messages", async (req, res) => {
 app.get("/", (req, res) => {
   res.send("📬 Time Capsule backend is live!");
 });
+// DELETE a message by ID
+app.delete("/messages/:id", async (req, res) => {
+  try {
+    const deleted = await Message.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ error: "Message not found." });
+    }
+    res.json({ message: "Message deleted successfully." });
+  } catch (err) {
+    console.error("❌ Error deleting message:", err);
+    res.status(500).json({ error: "Failed to delete message." });
+  }
+});
 
 // Start server
 const PORT = process.env.PORT || 3000;
