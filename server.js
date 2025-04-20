@@ -3,15 +3,18 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
+
+// CORS Options for your specific domain
 const corsOptions = {
-  origin: 'https://cdpn.io',
+  origin: 'https://cdpn.io',  // Allow only CodePen's frontend to make requests
   methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type'],
-  credentials: true
+  credentials: true  // Allows cookies to be sent with requests
 };
 
+// Use CORS middleware globally
+app.use(cors(corsOptions));
 
-app.options('*', cors());
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI || "mongodb://atlas-sql-680401721a6f6b782dd97e29-aaied.a.query.mongodb.net/timecapsule?ssl=true&authSource=admin", {
@@ -31,7 +34,6 @@ const messageSchema = new mongoose.Schema({
 });
 
 const Message = mongoose.model("Message", messageSchema);
-
 
 app.get("/messages", async (req, res) => {
   try {
@@ -60,9 +62,6 @@ app.post("/messages", async (req, res) => {
   }
 });
 
-app.get("/", (req, res) => {
-  res.send("📬 Time Capsule backend is live!");
-});
 app.delete("/messages/:id", async (req, res) => {
   try {
     const deleted = await Message.findByIdAndDelete(req.params.id);
@@ -74,6 +73,10 @@ app.delete("/messages/:id", async (req, res) => {
     console.error("❌ Error deleting message:", err);
     res.status(500).json({ error: "Failed to delete message." });
   }
+});
+
+app.get("/", (req, res) => {
+  res.send("📬 Time Capsule backend is live!");
 });
 
 // Start server
