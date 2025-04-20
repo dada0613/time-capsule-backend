@@ -1,30 +1,69 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config();
 
-const Message = require("./models/Message");
 const app = express();
+
+// Middlewares
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI, {
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI || "your-mongodb-uri-here", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
-app.get("/api/messages", async (req, res) => {
-  const now = new Date();
-  const messages = await Message.find({ openDate: { $lte: now } }).sort({ openDate: -1 });
-  res.json(messages);
+// Define Message schema + model
+const messageSchema = new mongoose.Schema({
+  title: String,
+  mood: String,
+  content: String,
+  openAt: Date,
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-app.post("/api/messages", async (req, res) => {
-  const { message, openDate } = req.body;
-  const newMessage = new Message({ message, openDate });
-  await newMessage.save();
-  res.status(201).json({ message: "Saved successfully!" });
+const Message = mongoose.model("Message", messageSchema);
+
+// Routes
+
+// GET all messages
+app.get("/messages", async (req, res) => {
+  try {
+    const messages = await Message.find().sort({ createdAt: -1 });
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch messages." });
+  }
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Server running on port ${port}`));
+// POST new message
+app.post("/messages", async (req, res) => {
+  try {
+    const { title, mood, content, openAt } = req.body;
+
+    if (!title || !mood || !content || !openAt) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
+
+    const newMsg = new Message({ title, mood, content, openAt });
+    await newMsg.save();
+
+    res.status(201).json({ message: "Message saved successfully!" });
+  } catch (err) {
+    console.error("❌ Error saving message:", err);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+// Default route (for sanity check)
+app.get("/", (req, res) => {
+  res.send("📬 Time Capsule backend is live!");
+});
+
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
