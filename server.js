@@ -4,9 +4,12 @@ const cors = require("cors");
 
 const app = express();
 
-// Middlewares
-app.use(cors());
-app.use(express.json());
+
+app.use(cors({
+  origin: 'https://cdpn.io',
+  methods: ['GET', 'POST', 'DELETE'],
+  allowedHeaders: ['Content-Type']
+}));app.use(express.json());
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI || "mongodb://atlas-sql-680401721a6f6b782dd97e29-aaied.a.query.mongodb.net/timecapsule?ssl=true&authSource=admin", {
