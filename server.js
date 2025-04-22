@@ -4,7 +4,6 @@ const cors = require("cors");
 
 const app = express();
 
-// ✅ CORS config to allow requests from CodePen
 const corsOptions = {
   origin: 'https://cdpn.io',
   methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
@@ -12,12 +11,10 @@ const corsOptions = {
   credentials: true
 };
 
-// ✅ Middleware
-app.use(cors(corsOptions)); // <-- IMPORTANT: actually apply corsOptions!
-app.options('*', cors(corsOptions)); // handle preflight
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json());
 
-// ✅ MongoDB connection with logs
 mongoose.connect(
   process.env.MONGO_URI || "mongodb+srv://amandahsu0613:vm6a04mp6@timecapsule.0tc9q5s.mongodb.net/?retryWrites=true&w=majority&appName=TimeCapsule",
   {
@@ -25,10 +22,9 @@ mongoose.connect(
     useUnifiedTopology: true,
   }
 )
-.then(() => console.log("✅ Connected to MongoDB"))
-.catch(err => console.error("❌ Failed to connect to MongoDB", err));
+.then(() => console.log("Connected to MongoDB"))
+.catch(err => console.error("MongoDB connection failed", err));
 
-// ✅ Mongoose schema/model
 const messageSchema = new mongoose.Schema({
   title: String,
   mood: String,
@@ -42,8 +38,6 @@ const messageSchema = new mongoose.Schema({
 
 const Message = mongoose.model("Message", messageSchema);
 
-// ✅ Routes
-
 app.get("/messages", async (req, res) => {
   try {
     const messages = await Message.find().sort({ createdAt: -1 });
@@ -55,8 +49,6 @@ app.get("/messages", async (req, res) => {
 
 app.post("/messages", async (req, res) => {
   try {
-    console.log("📥 Incoming message body:", req.body); // for debugging
-
     const { title, mood, content, openAt } = req.body;
 
     if (!title || !mood || !content || !openAt) {
@@ -68,7 +60,6 @@ app.post("/messages", async (req, res) => {
 
     res.status(201).json({ message: "Message saved successfully!" });
   } catch (err) {
-    console.error("❌ Error saving message:", err);
     res.status(500).json({ error: "Internal server error." });
   }
 });
@@ -81,15 +72,13 @@ app.delete("/messages/:id", async (req, res) => {
     }
     res.json({ message: "Message deleted successfully." });
   } catch (err) {
-    console.error("❌ Error deleting message:", err);
     res.status(500).json({ error: "Failed to delete message." });
   }
 });
 
 app.get("/", (req, res) => {
-  res.send("📬 Time Capsule backend is live!");
+  res.send("Time Capsule backend is live!");
 });
 
-// ✅ Start the server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
