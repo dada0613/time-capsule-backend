@@ -14,7 +14,7 @@ const corsOptions = {
 app.options('*', cors());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI || "mongodb://atlas-sql-680401721a6f6b782dd97e29-aaied.a.query.mongodb.net/timecapsule?ssl=true&authSource=admin", {
+mongoose.connect(process.env.MONGO_URI || "mongodb+srv://amandahsu0613:vm6a04mp6@timecapsule.0tc9q5s.mongodb.net/?retryWrites=true&w=majority&appName=TimeCapsule", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
